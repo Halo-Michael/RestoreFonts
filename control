@@ -1,0 +1,10 @@
+Package: com.michael.restorefonts
+Version: 0.1.0
+Section: Tweaks
+Name: RestoreFonts
+Author: halo_michael <yc992147156@me.com>
+Sponsor: halo_michael <yc992147156@me.com>
+Maintainer: halo_michael <yc992147156@me.com>
+Depends: firmware (>= 11.0)
+Architecture: iphoneos-arm
+Description: Restore your fonts.
