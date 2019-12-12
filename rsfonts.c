@@ -66,8 +66,8 @@ int main()
     char command[200];
     sprintf(command, "mount_apfs -s %s / /mnt2", name);
     if (run_cmd(command) == 0) {
-        run_cmd("rm -rf /System/Library/Fonts/*");
-        run_cmd("cp -a /mnt2/System/Library/Fonts/* /System/Library/Fonts");
+        run_cmd("rm -rf /System/Library/Fonts");
+        run_cmd("cp -a /mnt2/System/Library/Fonts /System/Library");
     } else {
         perror("Mount failed");
         exit(1);

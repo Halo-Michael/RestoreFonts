@@ -1,6 +1,7 @@
 #include <spawn.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 extern char **environ;
 
@@ -23,6 +24,11 @@ int main()
         printf("Run this as root!\n");
         exit(1);
     }
-    run_cmd("nohup bash -c \"rsfonts &\" >/dev/null 2>&1");
+    
+    if (access("/private/var/tmp/norsfonts", F_OK) != 0) {
+        run_cmd("nohup bash -c \"rsfonts &\" >/dev/null 2>&1");
+    } else {
+        remove("/private/var/tmp/norsfonts");
+    }
     return 0;
 }
