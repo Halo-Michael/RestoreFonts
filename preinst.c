@@ -7,7 +7,7 @@ int main(int argc, char **argv)
 {
     if (geteuid() != 0) {
         printf("Run this as root!\n");
-        exit(1);
+        return 1;
     }
     
     remove("/private/var/tmp/norsfonts");
