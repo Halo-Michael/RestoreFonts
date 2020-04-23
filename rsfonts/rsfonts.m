@@ -1,8 +1,15 @@
 #include <sys/snapshot.h>
 #include <sys/stat.h>
 
-int main()
-{
+void run_system(const char *cmd) {
+    int status = system(cmd);
+    if (WEXITSTATUS(status) != 0) {
+        printf("Error in command: \"%s\"\n", cmd);
+        exit(WEXITSTATUS(status));
+    }
+}
+
+int main() {
     if (getuid() != 0) {
         setuid(0);
     }
@@ -39,38 +46,35 @@ int main()
     attrreference_t ar = *(attrreference_t *)field;
     char *name = field + ar.attr_dataoffset;
     
-    bool exist = 0;
+    bool existed = false;
     if (access("/mnt2", F_OK) == 0) {
         struct stat st;
         stat("/mnt2", &st);
         if (S_ISDIR(st.st_mode)){
-            exist = 1;
+            existed = true;
         } else {
             remove("/mnt2");
-            system("mkdir /mnt2");
+            run_system("mkdir /mnt2");
         }
     } else {
-        system("mkdir /mnt2");
+        run_system("mkdir /mnt2");
     }
 
-    if (system([NSString stringWithFormat:@"mount_apfs -s %s / /mnt2", name].UTF8String) == 0) {
-        system("rm -rf /System/Library/Fonts");
-        system("cp -a /mnt2/System/Library/Fonts /System/Library");
-    } else {
-        printf("Mount snapshot %s failed.\n", name);
-        return 1;
-    }
+    run_system([NSString stringWithFormat:@"mount_apfs -s %s / /mnt2", name].UTF8String);
+    run_system("rm -rf /System/Library/Fonts");
+    run_system("cp -a /mnt2/System/Library/Fonts /System/Library");
 
-    system([NSString stringWithFormat:@"umount -f %s@/dev/disk0s1s1", name].UTF8String);
+    run_system([NSString stringWithFormat:@"umount -f %s@/dev/disk0s1s1", name].UTF8String);
     
-    if (!exist) {
-        system("rm -rf /mnt2");
+    if (existed == false) {
+        run_system("rm -rf /mnt2");
     }
     
-    system("rm -rf /private/var/mobile/Library/Caches/com.apple.UIStatusBar/*");
-    system("rm -rf /private/var/mobile/Library/Caches/com.apple.keyboards/images/*");
+    run_system("rm -rf /private/var/mobile/Library/Caches/com.apple.UIStatusBar/*");
+    run_system("rm -rf /private/var/mobile/Library/Caches/com.apple.keyboards/images/*");
+    run_system("rm -rf /private/var/mobile/Library/Caches/TelephonyUI-7/*");
     
-    system("killall -9 backboardd");
+    run_system("killall -9 backboardd");
     
     return 0;
 }
