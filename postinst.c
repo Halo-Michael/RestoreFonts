@@ -26,7 +26,7 @@ int main() {
         if (cydia_env != NULL) {
             int cydiaFd = (int)strtoul(cydia_env, NULL, 10);
             if (cydiaFd != 0) {
-                write(cydiaFd, "finish:reboot\n", 14);
+                write(cydiaFd, "finish:restart\n", 15);
             }
         }
     } else {
