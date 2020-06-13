@@ -1,4 +1,4 @@
-#include <AVFoundation/AVFoundation.h>
+#include <Foundation/Foundation.h>
 #include <sys/snapshot.h>
 #include <sys/stat.h>
 
@@ -76,9 +76,17 @@ int main() {
     [fileManager removeItemAtURL:[NSURL URLWithString:@"file:///private/var/mobile/Library/Caches/com.apple.UIStatusBar"] error:nil];
     [fileManager removeItemAtURL:[NSURL URLWithString:@"file:///private/var/mobile/Library/Caches/com.apple.keyboards/images"] error:nil];
     [fileManager removeItemAtURL:[NSURL URLWithString:@"file:///private/var/mobile/Library/Caches/TelephonyUI-7"] error:nil];
-    for (NSString *TUI in [fileManager subpathsOfDirectoryAtPath:@"/private/var/mobile/Containers/Data/Application" error:nil]) {
-        if ([[TUI lastPathComponent] isEqualToString:@"TelephonyUI-7"]) {
-            [fileManager removeItemAtURL:[NSURL URLWithString:[NSString stringWithFormat:@"file:///private/var/mobile/Containers/Data/Application/%@", TUI]] error:nil];
+    for (NSString *TUI in [fileManager contentsOfDirectoryAtPath:@"/private/var/mobile/Containers/Data/Application" error:nil]) {
+        NSString *metadata = [NSString stringWithFormat:@"/private/var/mobile/Containers/Data/Application/%@/.com.apple.mobile_container_manager.metadata.plist", TUI];
+        if (access([metadata UTF8String], F_OK) == 0) {
+            NSDictionary *const dict = [NSDictionary dictionaryWithContentsOfFile:metadata];
+            if (dict != nil) {
+                if ([dict[@"MCMMetadataIdentifier"] isEqualToString:@"com.apple.mobilephone"]) {
+                    if (access([[NSString stringWithFormat:@"/private/var/mobile/Containers/Data/Application/%@/Library/Caches/TelephonyUI-7", TUI] UTF8String], F_OK) == 0) {
+                        [fileManager removeItemAtURL:[NSURL URLWithString:[NSString stringWithFormat:@"file:///private/var/mobile/Containers/Data/Application/%@/Library/Caches/TelephonyUI-7", TUI]] error:nil];
+                    }
+                }
+            }
         }
     }
 
