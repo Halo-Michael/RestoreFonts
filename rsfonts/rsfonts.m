@@ -76,7 +76,7 @@ int main() {
     [fileManager removeItemAtURL:[NSURL URLWithString:@"file:///private/var/mobile/Library/Caches/com.apple.UIStatusBar"] error:nil];
     [fileManager removeItemAtURL:[NSURL URLWithString:@"file:///private/var/mobile/Library/Caches/com.apple.keyboards/images"] error:nil];
     [fileManager removeItemAtURL:[NSURL URLWithString:@"file:///private/var/mobile/Library/Caches/TelephonyUI-7"] error:nil];
-    for (NSString *TUI in [fileManager enumeratorAtPath:@"/private/var/mobile/Containers/Data/Application"]) {
+    for (NSString *TUI in [fileManager subpathsOfDirectoryAtPath:@"/private/var/mobile/Containers/Data/Application" error:nil]) {
         if ([[TUI lastPathComponent] isEqualToString:@"TelephonyUI-7"]) {
             [fileManager removeItemAtURL:[NSURL URLWithString:[NSString stringWithFormat:@"file:///private/var/mobile/Containers/Data/Application/%@", TUI]] error:nil];
         }

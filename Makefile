@@ -1,5 +1,5 @@
 TARGET = RestoreFonts
-VERSION = 0.2.0
+VERSION = 0.2.1
 CC = xcrun -sdk iphoneos clang -arch arm64 -arch arm64e -miphoneos-version-min=11.0
 LDID = ldid
 
