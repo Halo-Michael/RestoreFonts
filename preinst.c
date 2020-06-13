@@ -3,13 +3,12 @@
 #include <string.h>
 #include <unistd.h>
 
-int main(int argc, const char **argv)
-{
+int main(int argc, const char **argv) {
     if (geteuid() != 0) {
         printf("Run this as root!\n");
         return 1;
     }
-    
+
     remove("/private/var/tmp/norsfonts");
     if (strcmp(argv[1], "upgrade") == 0) {
         FILE *fp = fopen("/private/var/tmp/norsfonts","a+");
