@@ -1,7 +1,3 @@
-export TARGET=iphone:clang::11.0
-export ARCHS=arm64 arm64e
-export DEBUG=0
-
 include $(THEOS)/makefiles/common.mk
 
 TOOL_NAME = rsfonts

@@ -1,33 +1,29 @@
-TARGET = RestoreFonts
-VERSION = 0.2.2
-CC = xcrun -sdk iphoneos clang -arch arm64 -arch arm64e -miphoneos-version-min=11.0
+export TARGET = iphone:clang:13.0:11.0
+export ARCHS = arm64 arm64e
+export VERSION = 0.3.0
+export DEBUG = no
+CC = xcrun -sdk ${THEOS}/sdks/iPhoneOS13.0.sdk clang -arch arm64 -arch arm64e -miphoneos-version-min=11.0
 LDID = ldid
 
 .PHONY: all clean
 
-all: clean preinst postinst rsfonts
+all: clean extrainst_ rsfonts
 	mkdir com.michael.restorefonts_$(VERSION)_iphoneos-arm
 	mkdir com.michael.restorefonts_$(VERSION)_iphoneos-arm/DEBIAN
 	cp control com.michael.restorefonts_$(VERSION)_iphoneos-arm/DEBIAN
-	mv preinst com.michael.restorefonts_$(VERSION)_iphoneos-arm/DEBIAN
-	mv postinst com.michael.restorefonts_$(VERSION)_iphoneos-arm/DEBIAN
+	mv extrainst_ com.michael.restorefonts_$(VERSION)_iphoneos-arm/DEBIAN
 	mkdir com.michael.restorefonts_$(VERSION)_iphoneos-arm/usr
 	mkdir com.michael.restorefonts_$(VERSION)_iphoneos-arm/usr/bin
 	mv rsfonts/.theos/obj/rsfonts com.michael.restorefonts_$(VERSION)_iphoneos-arm/usr/bin
 	dpkg -b com.michael.restorefonts_$(VERSION)_iphoneos-arm
 
-preinst: clean
-	$(CC) preinst.c -o preinst
-	strip preinst
-	$(LDID) -Sentitlements.xml preinst
-
-postinst: clean
-	$(CC) postinst.c -o postinst
-	strip postinst
-	$(LDID) -Sentitlements.xml postinst
+extrainst_: clean
+	$(CC) extrainst_.c -o extrainst_
+	strip extrainst_
+	$(LDID) -Sentitlements.xml extrainst_
 
 rsfonts: clean
-	sh make-rsfonts.sh
+	cd rsfonts && make
 
 clean:
-	rm -rf com.michael.restorefonts_* preinst postinst rsfonts/.theos
+	rm -rf com.michael.restorefonts_* extrainst_ rsfonts/.theos

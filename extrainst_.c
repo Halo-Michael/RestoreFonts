@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
 #include <unistd.h>
 
 void run_system(const char *cmd) {
@@ -11,16 +12,16 @@ void run_system(const char *cmd) {
     }
 }
 
-int main() {
+int main(int argc, const char **argv) {
     if (geteuid() != 0) {
         printf("Run this as root!\n");
         return 1;
     }
 
-    run_system("chown root:wheel /usr/bin/rsfonts");
-    run_system("chmod 6755 /usr/bin/rsfonts");
+    chown("/usr/bin/rsfonts", 0, 0);
+    chmod("/usr/bin/rsfonts", 06755);
 
-    if (access("/private/var/tmp/norsfonts", F_OK) != 0) {
+    if (strcmp(argv[1], "install") == 0) {
         run_system("rsfonts");
         char *cydia_env = getenv("CYDIA");
         if (cydia_env != NULL) {
@@ -29,8 +30,6 @@ int main() {
                 write(cydiaFd, "finish:restart\n", 15);
             }
         }
-    } else {
-        remove("/private/var/tmp/norsfonts");
     }
     return 0;
 }
