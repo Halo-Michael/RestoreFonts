@@ -52,10 +52,8 @@ int main() {
     bool existed = false;
 
     NSFileManager *fileManager = [NSFileManager defaultManager];
-    if (access("/mnt2", F_OK) == 0) {
-        if ([[fileManager attributesOfItemAtPath:@"/mnt2" error:nil][@"NSFileType"] isEqualToString:@"NSFileTypeDirectory"]){
-            existed = true;
-        } else {
+    if ([fileManager fileExistsAtPath:@"/mnt2" isDirectory:&existed]) {
+        if (!existed) {
             [fileManager removeItemAtPath:@"/mnt2" error:nil];
             [fileManager createDirectoryAtPath:@"/mnt2" withIntermediateDirectories:NO attributes:nil error:nil];
         }
@@ -78,11 +76,11 @@ int main() {
     [fileManager removeItemAtPath:@"/private/var/mobile/Library/Caches/TelephonyUI-7" error:nil];
     for (NSString *TUI in [fileManager contentsOfDirectoryAtPath:@"/private/var/mobile/Containers/Data/Application" error:nil]) {
         NSString *metadata = [NSString stringWithFormat:@"/private/var/mobile/Containers/Data/Application/%@/.com.apple.mobile_container_manager.metadata.plist", TUI];
-        if (access([metadata UTF8String], F_OK) == 0) {
+        if ([fileManager fileExistsAtPath:metadata]) {
             NSDictionary *const dict = [NSDictionary dictionaryWithContentsOfFile:metadata];
             if (dict != nil) {
-                if ([dict[@"MCMMetadataIdentifier"] isEqualToString:@"com.apple.mobilephone"]) {
-                    if (access([[NSString stringWithFormat:@"/private/var/mobile/Containers/Data/Application/%@/Library/Caches/TelephonyUI-7", TUI] UTF8String], F_OK) == 0) {
+                if ([dict[@"MCMMetadataIdentifier"] isEqual:@"com.apple.mobilephone"] || [dict[@"MCMMetadataIdentifier"] isEqual:@"com.apple.InCallService"] || [dict[@"MCMMetadataIdentifier"] isEqual:@"com.apple.CoreAuthUI"]) {
+                    if ([fileManager fileExistsAtPath:[NSString stringWithFormat:@"/private/var/mobile/Containers/Data/Application/%@/Library/Caches/TelephonyUI-7", TUI]]) {
                         [fileManager removeItemAtPath:[NSString stringWithFormat:@"/private/var/mobile/Containers/Data/Application/%@/Library/Caches/TelephonyUI-7", TUI] error:nil];
                     }
                 }
