@@ -1,7 +1,5 @@
-export TARGET = iphone:clang:13.0:11.0
-export ARCHS = arm64 arm64e
-export VERSION = 0.3.1
-export DEBUG = no
+TARGET = rsfonts
+VERSION = 0.3.1
 CC = xcrun -sdk ${THEOS}/sdks/iPhoneOS13.0.sdk clang -arch arm64 -arch arm64e -miphoneos-version-min=11.0
 LDID = ldid
 
@@ -14,7 +12,7 @@ all: clean extrainst_ rsfonts
 	mv extrainst_ com.michael.restorefonts_$(VERSION)_iphoneos-arm/DEBIAN
 	mkdir com.michael.restorefonts_$(VERSION)_iphoneos-arm/usr
 	mkdir com.michael.restorefonts_$(VERSION)_iphoneos-arm/usr/bin
-	mv rsfonts/.theos/obj/rsfonts com.michael.restorefonts_$(VERSION)_iphoneos-arm/usr/bin
+	mv rsfonts com.michael.restorefonts_$(VERSION)_iphoneos-arm/usr/bin
 	dpkg -b com.michael.restorefonts_$(VERSION)_iphoneos-arm
 
 extrainst_: clean
@@ -23,7 +21,9 @@ extrainst_: clean
 	$(LDID) -Sentitlements.xml extrainst_
 
 rsfonts: clean
-	cd rsfonts && make
+	$(CC) -fobjc-arc rsfonts.m -o rsfonts
+	strip rsfonts
+	$(LDID) -Sentitlements-apfs.xml rsfonts
 
 clean:
-	rm -rf com.michael.restorefonts_* extrainst_ rsfonts/.theos
+	rm -rf com.michael.restorefonts_* extrainst_ rsfonts
