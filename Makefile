@@ -1,6 +1,7 @@
 TARGET = rsfonts
-VERSION = 0.3.1
-CC = xcrun -sdk ${THEOS}/sdks/iPhoneOS13.0.sdk clang -arch arm64 -arch arm64e -miphoneos-version-min=11.0
+VERSION = 0.3.2
+SDK = ${THEOS}/sdks/iPhoneOS13.0.sdk
+CC = xcrun -sdk ${SDK} clang -arch arm64 -arch arm64e -miphoneos-version-min=11.0
 LDID = ldid
 
 .PHONY: all clean
@@ -21,7 +22,7 @@ extrainst_: clean
 	$(LDID) -Sentitlements.xml extrainst_
 
 rsfonts: clean
-	$(CC) -fobjc-arc rsfonts.m -o rsfonts
+	$(CC) -fobjc-arc ${SDK}/System/Library/Frameworks/CoreServices.framework/CoreServices.tbd rsfonts.m -o rsfonts
 	strip rsfonts
 	$(LDID) -Sentitlements-apfs.xml rsfonts
 

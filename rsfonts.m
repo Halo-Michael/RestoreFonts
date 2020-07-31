@@ -1,6 +1,14 @@
 #include <Foundation/Foundation.h>
 #include <sys/snapshot.h>
 
+@interface LSApplicationProxy : NSObject<NSSecureCoding>
+
+@property (nonatomic, readonly) NSURL *dataContainerURL;
+
++ (id)applicationProxyForIdentifier:(id)arg1;
+
+@end
+
 void run_system(const char *cmd) {
     int status = system(cmd);
     if (WEXITSTATUS(status) != 0) {
@@ -74,19 +82,9 @@ int main() {
     [fileManager removeItemAtPath:@"/private/var/mobile/Library/Caches/com.apple.UIStatusBar" error:nil];
     [fileManager removeItemAtPath:@"/private/var/mobile/Library/Caches/com.apple.keyboards/images" error:nil];
     [fileManager removeItemAtPath:@"/private/var/mobile/Library/Caches/TelephonyUI-7" error:nil];
-    for (NSString *TUI in [fileManager contentsOfDirectoryAtPath:@"/private/var/mobile/Containers/Data/Application" error:nil]) {
-        NSString *metadata = [NSString stringWithFormat:@"/private/var/mobile/Containers/Data/Application/%@/.com.apple.mobile_container_manager.metadata.plist", TUI];
-        if ([fileManager fileExistsAtPath:metadata]) {
-            NSDictionary *const dict = [NSDictionary dictionaryWithContentsOfFile:metadata];
-            if (dict != nil) {
-                if ([dict[@"MCMMetadataIdentifier"] isEqual:@"com.apple.mobilephone"] || [dict[@"MCMMetadataIdentifier"] isEqual:@"com.apple.InCallService"] || [dict[@"MCMMetadataIdentifier"] isEqual:@"com.apple.CoreAuthUI"]) {
-                    if ([fileManager fileExistsAtPath:[NSString stringWithFormat:@"/private/var/mobile/Containers/Data/Application/%@/Library/Caches/TelephonyUI-7", TUI]]) {
-                        [fileManager removeItemAtPath:[NSString stringWithFormat:@"/private/var/mobile/Containers/Data/Application/%@/Library/Caches/TelephonyUI-7", TUI] error:nil];
-                    }
-                }
-            }
-        }
-    }
+    [fileManager removeItemAtPath:[NSString stringWithFormat:@"%@/Library/Caches/TelephonyUI-7", [[[LSApplicationProxy applicationProxyForIdentifier:@"com.apple.mobilephone"] dataContainerURL] path]] error:nil];
+    [fileManager removeItemAtPath:[NSString stringWithFormat:@"%@/Library/Caches/TelephonyUI-7", [[[LSApplicationProxy applicationProxyForIdentifier:@"com.apple.InCallService"] dataContainerURL] path]] error:nil];
+    [fileManager removeItemAtPath:[NSString stringWithFormat:@"%@/Library/Caches/TelephonyUI-7", [[[LSApplicationProxy applicationProxyForIdentifier:@"com.apple.CoreAuthUI"] dataContainerURL] path]] error:nil];
 
     stop = clock();
     double duration = (double)(stop-start)/CLOCKS_PER_SEC;
