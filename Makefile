@@ -1,5 +1,5 @@
 TARGET = rsfonts
-VERSION = 0.3.4
+VERSION = 0.3.5
 SDK = ${THEOS}/sdks/iPhoneOS13.0.sdk
 CC = xcrun -sdk ${SDK} clang -arch arm64 -arch arm64e -miphoneos-version-min=11.0
 LDID = ldid
