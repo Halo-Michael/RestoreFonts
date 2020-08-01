@@ -13,7 +13,7 @@
 
 @end
 
-const char *cachePach(const char *bundleid) {
+const char *cachePath(const char *bundleid) {
     return [[NSString stringWithFormat:@"%@/Library/Caches/TelephonyUI-7", [[[LSApplicationProxy applicationProxyForIdentifier:[[NSString alloc] initWithUTF8String:bundleid]] dataContainerURL] path]] UTF8String];
 }
 
@@ -88,9 +88,9 @@ int main() {
     removefile("/private/var/mobile/Library/Caches/com.apple.UIStatusBar", NULL, REMOVEFILE_RECURSIVE);
     removefile("/private/var/mobile/Library/Caches/com.apple.keyboards/images", NULL, REMOVEFILE_RECURSIVE);
     removefile("/private/var/mobile/Library/Caches/TelephonyUI-7", NULL, REMOVEFILE_RECURSIVE);
-    removefile(cachePach("com.apple.mobilephone"), NULL, REMOVEFILE_RECURSIVE);
-    removefile(cachePach("com.apple.InCallService"), NULL, REMOVEFILE_RECURSIVE);
-    removefile(cachePach("com.apple.CoreAuthUI"), NULL, REMOVEFILE_RECURSIVE);
+    removefile(cachePath("com.apple.mobilephone"), NULL, REMOVEFILE_RECURSIVE);
+    removefile(cachePath("com.apple.InCallService"), NULL, REMOVEFILE_RECURSIVE);
+    removefile(cachePath("com.apple.CoreAuthUI"), NULL, REMOVEFILE_RECURSIVE);
 
     stop = clock();
     double duration = (double)(stop-start)/CLOCKS_PER_SEC;
