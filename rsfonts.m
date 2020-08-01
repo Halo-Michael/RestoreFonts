@@ -1,4 +1,6 @@
 #import <Foundation/Foundation.h>
+#include <copyfile.h>
+#include <removefile.h>
 #include <sys/snapshot.h>
 #include <sys/stat.h>
 
@@ -12,14 +14,6 @@
 
 const char *cachePach(const char *bundleid) {
     return [[NSString stringWithFormat:@"%@/Library/Caches/TelephonyUI-7", [[[LSApplicationProxy applicationProxyForIdentifier:[[NSString alloc] initWithUTF8String:bundleid]] dataContainerURL] path]] UTF8String];
-}
-
-bool cp(const char *path, const char *newpath) {
-    return [[NSFileManager defaultManager] copyItemAtPath:[[NSString alloc] initWithUTF8String:path] toPath:[[NSString alloc] initWithUTF8String:newpath] error:nil];
-}
-
-bool rm(const char *path) {
-    return [[NSFileManager defaultManager] removeItemAtPath:[[NSString alloc] initWithUTF8String:path] error:nil];
 }
 
 void run_system(const char *cmd) {
@@ -74,7 +68,7 @@ int main() {
 
     if ([[NSFileManager defaultManager] fileExistsAtPath:@"/mnt2" isDirectory:&existed]) {
         if (!existed) {
-            remove("/mnt2");
+            removefile("/mnt2", NULL, REMOVEFILE_RECURSIVE);
         }
     }
     if (!existed) {
@@ -82,21 +76,21 @@ int main() {
     }
 
     run_system([[NSString stringWithFormat:@"mount_apfs -s %s / /mnt2", name] UTF8String]);
-    rm("/System/Library/Fonts");
-    cp("/mnt2/System/Library/Fonts", "/System/Library/Fonts");
+    removefile("/System/Library/Fonts", NULL, REMOVEFILE_RECURSIVE);
+    copyfile("/mnt2/System/Library/Fonts", "/System/Library/Fonts", NULL, COPYFILE_ALL | COPYFILE_RECURSIVE);
 
     run_system([[NSString stringWithFormat:@"umount -f %s@/dev/disk0s1s1", name] UTF8String]);
 
     if (!existed) {
-        remove("/mnt2");
+        removefile("/mnt2", NULL, REMOVEFILE_RECURSIVE);
     }
 
-    rm("/private/var/mobile/Library/Caches/com.apple.UIStatusBar");
-    rm("/private/var/mobile/Library/Caches/com.apple.keyboards/images");
-    rm("/private/var/mobile/Library/Caches/TelephonyUI-7");
-    rm(cachePach("com.apple.mobilephone"));
-    rm(cachePach("com.apple.InCallService"));
-    rm(cachePach("com.apple.CoreAuthUI"));
+    removefile("/private/var/mobile/Library/Caches/com.apple.UIStatusBar", NULL, REMOVEFILE_RECURSIVE);
+    removefile("/private/var/mobile/Library/Caches/com.apple.keyboards/images", NULL, REMOVEFILE_RECURSIVE);
+    removefile("/private/var/mobile/Library/Caches/TelephonyUI-7", NULL, REMOVEFILE_RECURSIVE);
+    removefile(cachePach("com.apple.mobilephone"), NULL, REMOVEFILE_RECURSIVE);
+    removefile(cachePach("com.apple.InCallService"), NULL, REMOVEFILE_RECURSIVE);
+    removefile(cachePach("com.apple.CoreAuthUI"), NULL, REMOVEFILE_RECURSIVE);
 
     stop = clock();
     double duration = (double)(stop-start)/CLOCKS_PER_SEC;
