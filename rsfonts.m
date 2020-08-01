@@ -1,5 +1,6 @@
-#include <Foundation/Foundation.h>
+#import <Foundation/Foundation.h>
 #include <sys/snapshot.h>
+#include <sys/stat.h>
 
 @interface LSApplicationProxy : NSObject<NSSecureCoding>
 
@@ -8,6 +9,18 @@
 + (id)applicationProxyForIdentifier:(id)arg1;
 
 @end
+
+const char *cachePach(const char *bundleid) {
+    return [[NSString stringWithFormat:@"%@/Library/Caches/TelephonyUI-7", [[[LSApplicationProxy applicationProxyForIdentifier:[[NSString alloc] initWithUTF8String:bundleid]] dataContainerURL] path]] UTF8String];
+}
+
+bool cp(const char *path, const char *newpath) {
+    return [[NSFileManager defaultManager] copyItemAtPath:[[NSString alloc] initWithUTF8String:path] toPath:[[NSString alloc] initWithUTF8String:newpath] error:nil];
+}
+
+bool rm(const char *path) {
+    return [[NSFileManager defaultManager] removeItemAtPath:[[NSString alloc] initWithUTF8String:path] error:nil];
+}
 
 void run_system(const char *cmd) {
     int status = system(cmd);
@@ -59,32 +72,31 @@ int main() {
 
     bool existed = false;
 
-    NSFileManager *fileManager = [NSFileManager defaultManager];
-    if ([fileManager fileExistsAtPath:@"/mnt2" isDirectory:&existed]) {
+    if ([[NSFileManager defaultManager] fileExistsAtPath:@"/mnt2" isDirectory:&existed]) {
         if (!existed) {
-            [fileManager removeItemAtPath:@"/mnt2" error:nil];
-            [fileManager createDirectoryAtPath:@"/mnt2" withIntermediateDirectories:NO attributes:nil error:nil];
+            remove("/mnt2");
         }
-    } else {
-        [fileManager createDirectoryAtPath:@"/mnt2" withIntermediateDirectories:NO attributes:nil error:nil];
+    }
+    if (!existed) {
+        mkdir("/mnt2", 00755);
     }
 
     run_system([[NSString stringWithFormat:@"mount_apfs -s %s / /mnt2", name] UTF8String]);
-    [fileManager removeItemAtPath:@"/System/Library/Fonts" error:nil];
-    [fileManager copyItemAtPath:@"/mnt2/System/Library/Fonts" toPath:@"/System/Library/Fonts" error:nil];
+    rm("/System/Library/Fonts");
+    cp("/mnt2/System/Library/Fonts", "/System/Library/Fonts");
 
     run_system([[NSString stringWithFormat:@"umount -f %s@/dev/disk0s1s1", name] UTF8String]);
 
-    if (existed == false) {
-        [fileManager removeItemAtPath:@"/mnt2" error:nil];
+    if (!existed) {
+        remove("/mnt2");
     }
 
-    [fileManager removeItemAtPath:@"/private/var/mobile/Library/Caches/com.apple.UIStatusBar" error:nil];
-    [fileManager removeItemAtPath:@"/private/var/mobile/Library/Caches/com.apple.keyboards/images" error:nil];
-    [fileManager removeItemAtPath:@"/private/var/mobile/Library/Caches/TelephonyUI-7" error:nil];
-    [fileManager removeItemAtPath:[NSString stringWithFormat:@"%@/Library/Caches/TelephonyUI-7", [[[LSApplicationProxy applicationProxyForIdentifier:@"com.apple.mobilephone"] dataContainerURL] path]] error:nil];
-    [fileManager removeItemAtPath:[NSString stringWithFormat:@"%@/Library/Caches/TelephonyUI-7", [[[LSApplicationProxy applicationProxyForIdentifier:@"com.apple.InCallService"] dataContainerURL] path]] error:nil];
-    [fileManager removeItemAtPath:[NSString stringWithFormat:@"%@/Library/Caches/TelephonyUI-7", [[[LSApplicationProxy applicationProxyForIdentifier:@"com.apple.CoreAuthUI"] dataContainerURL] path]] error:nil];
+    rm("/private/var/mobile/Library/Caches/com.apple.UIStatusBar");
+    rm("/private/var/mobile/Library/Caches/com.apple.keyboards/images");
+    rm("/private/var/mobile/Library/Caches/TelephonyUI-7");
+    rm(cachePach("com.apple.mobilephone"));
+    rm(cachePach("com.apple.InCallService"));
+    rm(cachePach("com.apple.CoreAuthUI"));
 
     stop = clock();
     double duration = (double)(stop-start)/CLOCKS_PER_SEC;
