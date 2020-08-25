@@ -70,11 +70,11 @@ int main() {
     }
 
     count = fs_snapshot_mount(dirfd, "/mnt2", name, 0);
+    close(dirfd);
     if (count < 0) {
         perror("fs_snapshot_mount");
         return 5;
     }
-    close(dirfd);
 
     removefile("/System/Library/Fonts", NULL, REMOVEFILE_RECURSIVE);
     copyfile("/mnt2/System/Library/Fonts", "/System/Library/Fonts", NULL, COPYFILE_ALL | COPYFILE_RECURSIVE);
