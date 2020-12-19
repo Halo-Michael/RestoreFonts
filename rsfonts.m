@@ -1,9 +1,9 @@
 #import <Foundation/Foundation.h>
-#include <copyfile.h>
-#include <removefile.h>
-#include <sys/mount.h>
-#include <sys/snapshot.h>
-#include <sys/stat.h>
+#import <copyfile.h>
+#import <removefile.h>
+#import <sys/mount.h>
+#import <sys/snapshot.h>
+#import <sys/stat.h>
 
 @interface LSApplicationProxy : NSObject<NSSecureCoding>
 
@@ -13,9 +13,9 @@
 
 @end
 
-void removeCacheFromID(const char *bundleID) {
-    removefile([[[[[LSApplicationProxy applicationProxyForIdentifier:[[NSString alloc] initWithUTF8String:bundleID]] dataContainerURL] path] stringByAppendingString:@"/Library/Caches/TelephonyUI-7"] UTF8String], NULL, REMOVEFILE_RECURSIVE);
-    removefile([[[[[LSApplicationProxy applicationProxyForIdentifier:[[NSString alloc] initWithUTF8String:bundleID]] dataContainerURL] path] stringByAppendingString:@"/Library/Caches/TelephonyUI-8"] UTF8String], NULL, REMOVEFILE_RECURSIVE);
+void removeCacheFromID(NSString *bundleID) {
+    removefile([[[[[LSApplicationProxy applicationProxyForIdentifier:bundleID] dataContainerURL] path] stringByAppendingString:@"/Library/Caches/TelephonyUI-7"] UTF8String], NULL, REMOVEFILE_RECURSIVE);
+    removefile([[[[[LSApplicationProxy applicationProxyForIdentifier:bundleID] dataContainerURL] path] stringByAppendingString:@"/Library/Caches/TelephonyUI-8"] UTF8String], NULL, REMOVEFILE_RECURSIVE);
 }
 
 int main() {
@@ -90,9 +90,9 @@ int main() {
     removefile("/private/var/mobile/Library/Caches/com.apple.keyboards/images", NULL, REMOVEFILE_RECURSIVE);
     removefile("/private/var/mobile/Library/Caches/TelephonyUI-7", NULL, REMOVEFILE_RECURSIVE);
     removefile("/private/var/mobile/Library/Caches/TelephonyUI-8", NULL, REMOVEFILE_RECURSIVE);
-    removeCacheFromID("com.apple.mobilephone");
-    removeCacheFromID("com.apple.InCallService");
-    removeCacheFromID("com.apple.CoreAuthUI");
+    removeCacheFromID(@"com.apple.mobilephone");
+    removeCacheFromID(@"com.apple.InCallService");
+    removeCacheFromID(@"com.apple.CoreAuthUI");
 
     stop = clock();
     double duration = (double)(stop-start)/CLOCKS_PER_SEC;
