@@ -13,8 +13,9 @@
 
 @end
 
-const char *cachePath(const char *bundleid) {
-    return [[NSString stringWithFormat:@"%@/Library/Caches/TelephonyUI-7", [[[LSApplicationProxy applicationProxyForIdentifier:[[NSString alloc] initWithUTF8String:bundleid]] dataContainerURL] path]] UTF8String];
+void removeCacheFromID(const char *bundleID) {
+    removefile([[[[[LSApplicationProxy applicationProxyForIdentifier:[[NSString alloc] initWithUTF8String:bundleID]] dataContainerURL] path] stringByAppendingString:@"/Library/Caches/TelephonyUI-7"] UTF8String], NULL, REMOVEFILE_RECURSIVE);
+    removefile([[[[[LSApplicationProxy applicationProxyForIdentifier:[[NSString alloc] initWithUTF8String:bundleID]] dataContainerURL] path] stringByAppendingString:@"/Library/Caches/TelephonyUI-8"] UTF8String], NULL, REMOVEFILE_RECURSIVE);
 }
 
 int main() {
@@ -88,9 +89,10 @@ int main() {
     removefile("/private/var/mobile/Library/Caches/com.apple.UIStatusBar", NULL, REMOVEFILE_RECURSIVE);
     removefile("/private/var/mobile/Library/Caches/com.apple.keyboards/images", NULL, REMOVEFILE_RECURSIVE);
     removefile("/private/var/mobile/Library/Caches/TelephonyUI-7", NULL, REMOVEFILE_RECURSIVE);
-    removefile(cachePath("com.apple.mobilephone"), NULL, REMOVEFILE_RECURSIVE);
-    removefile(cachePath("com.apple.InCallService"), NULL, REMOVEFILE_RECURSIVE);
-    removefile(cachePath("com.apple.CoreAuthUI"), NULL, REMOVEFILE_RECURSIVE);
+    removefile("/private/var/mobile/Library/Caches/TelephonyUI-8", NULL, REMOVEFILE_RECURSIVE);
+    removeCacheFromID("com.apple.mobilephone");
+    removeCacheFromID("com.apple.InCallService");
+    removeCacheFromID("com.apple.CoreAuthUI");
 
     stop = clock();
     double duration = (double)(stop-start)/CLOCKS_PER_SEC;
